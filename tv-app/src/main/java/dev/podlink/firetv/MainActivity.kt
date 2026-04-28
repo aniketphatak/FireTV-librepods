@@ -4,54 +4,86 @@
  */
 package dev.podlink.firetv
 
+import android.Manifest
+import android.content.pm.PackageManager
+import android.os.Build
 import android.os.Bundle
 import androidx.activity.ComponentActivity
+import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.compose.setContent
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Alignment
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.unit.dp
-import androidx.tv.material3.ExperimentalTvMaterial3Api
-import androidx.tv.material3.MaterialTheme
-import androidx.tv.material3.Surface
-import androidx.tv.material3.Text
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.platform.LocalContext
+import androidx.core.content.ContextCompat
+import dev.podlink.firetv.services.PodLinkService
+import dev.podlink.firetv.ui.HomeScreen
+import dev.podlink.firetv.ui.PermissionGate
 import dev.podlink.firetv.ui.PodLinkTheme
 
 class MainActivity : ComponentActivity() {
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContent { PodLinkTheme { Home() } }
+        setContent {
+            PodLinkTheme {
+                Root()
+            }
+        }
     }
 }
 
-@OptIn(ExperimentalTvMaterial3Api::class)
 @Composable
-private fun Home() {
-    Surface(modifier = Modifier.fillMaxSize()) {
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(48.dp),
-            verticalArrangement = Arrangement.spacedBy(16.dp, Alignment.CenterVertically),
-            horizontalAlignment = Alignment.CenterHorizontally,
-        ) {
-            Text(
-                text = "PodLink for Fire TV",
-                style = MaterialTheme.typography.displayMedium,
-            )
-            Text(
-                text = "Connect Apple AirPods or other Bluetooth earbuds to your Fire TV.",
-                style = MaterialTheme.typography.bodyLarge,
-            )
-            Text(
-                text = "Distribution: ${BuildConfig.DISTRIBUTION_CHANNEL}  •  " +
-                    "Root: ${if (BuildConfig.REQUIRES_ROOT) "required" else "not required"}",
-                style = MaterialTheme.typography.labelMedium,
-            )
+private fun Root() {
+    val context = LocalContext.current
+    val state by PodLinkRepository.state.collectAsState()
+
+    val required = remember { requiredPermissions() }
+    var granted by remember {
+        mutableStateOf(
+            required.all {
+                ContextCompat.checkSelfPermission(context, it) == PackageManager.PERMISSION_GRANTED
+            },
+        )
+    }
+
+    val launcher = rememberLauncherForActivityResult(
+        ActivityResultContracts.RequestMultiplePermissions(),
+    ) { result ->
+        granted = required.all {
+            result[it] == true ||
+                ContextCompat.checkSelfPermission(context, it) == PackageManager.PERMISSION_GRANTED
         }
+        if (granted) PodLinkService.start(context)
+    }
+
+    LaunchedEffect(granted) {
+        if (granted) PodLinkService.start(context)
+    }
+
+    if (granted) {
+        HomeScreen(state = state)
+    } else {
+        PermissionGate(
+            permissions = required,
+            onGrantClick = { launcher.launch(required.toTypedArray()) },
+        )
+    }
+}
+
+private fun requiredPermissions(): List<String> = buildList {
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+        add(Manifest.permission.BLUETOOTH_SCAN)
+        add(Manifest.permission.BLUETOOTH_CONNECT)
+    } else {
+        add(Manifest.permission.ACCESS_FINE_LOCATION)
+    }
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+        add(Manifest.permission.POST_NOTIFICATIONS)
     }
 }

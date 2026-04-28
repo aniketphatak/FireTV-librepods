@@ -7,7 +7,7 @@ appcompat = "1.7.0"
 lifecycle = "2.8.7"
 activityCompose = "1.9.3"
 composeBom = "2024.10.01"
-composeTv = "1.0.0-alpha11"
+composeTvMaterial = "1.0.0"
 material = "1.12.0"
 junit = "4.13.2"
 androidxJunit = "1.2.1"
@@ -25,8 +25,7 @@ androidx-compose-ui = { group = "androidx.compose.ui", name = "ui" }
 androidx-compose-ui-graphics = { group = "androidx.compose.ui", name = "ui-graphics" }
 androidx-compose-ui-tooling = { group = "androidx.compose.ui", name = "ui-tooling" }
 androidx-compose-ui-tooling-preview = { group = "androidx.compose.ui", name = "ui-tooling-preview" }
-androidx-tv-foundation = { group = "androidx.tv", name = "tv-foundation", version.ref = "composeTv" }
-androidx-tv-material = { group = "androidx.tv", name = "tv-material", version.ref = "composeTv" }
+androidx-tv-material = { group = "androidx.tv", name = "tv-material", version.ref = "composeTvMaterial" }
 google-material = { group = "com.google.android.material", name = "material", version.ref = "material" }
 
 # Root shell helper for the rootedFull flavor.

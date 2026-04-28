@@ -2,10 +2,9 @@
  * Copyright (C) 2026 The FireTV-librepods authors.
  * SPDX-License-Identifier: GPL-3.0-or-later
  *
- * The orchestration logic in this file is informed by upstream LibrePods'
- * services/AirPodsService.kt (https://github.com/kavishdevar/librepods,
- * GPL-3.0). Phone-only concerns (call answer, quick-settings tile, app
- * widgets) are intentionally omitted for the Fire TV port.
+ * Orchestration informed by upstream LibrePods'
+ * services/AirPodsService.kt (GPL-3.0). Phone-only concerns (call
+ * answer, quick-settings tile, app widgets) are intentionally omitted.
  */
 package dev.podlink.firetv.services
 
@@ -13,23 +12,78 @@ import android.app.Notification
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.content.Context
+import android.content.Intent
 import android.content.pm.ServiceInfo
 import android.os.Build
+import android.os.SystemClock
 import androidx.core.app.NotificationCompat
 import androidx.lifecycle.LifecycleService
+import dev.podlink.firetv.PodLinkRepository
+import dev.podlink.firetv.PodLinkRepository.ServiceStatus
 import dev.podlink.firetv.R
+import dev.podlink.firetv.audio.AudioRouter
+import dev.podlink.firetv.audio.PlaybackPauser
+import dev.podlink.firetv.bluetooth.BleScanner
 
 /**
- * Foreground service that owns the Bluetooth lifecycle and emits
- * [dev.podlink.firetv.core.PodEvent]s. Phase 1 is a connected-device
- * stub so we can validate the manifest entry and notification channel
- * on real hardware before wiring real Bluetooth code in phase 2.
+ * Foreground service that owns:
+ *  - the BLE scanner (advert-based connection / battery / ear-state),
+ *  - the audio router (logs A2DP routing events),
+ *  - the playback pauser (auto pause/resume on ear removal).
+ *
+ * State is published via [PodLinkRepository] so the UI can observe it.
  */
 class PodLinkService : LifecycleService() {
+
+    private lateinit var scanner: BleScanner
+    private lateinit var audioRouter: AudioRouter
+    private lateinit var playbackPauser: PlaybackPauser
+
     override fun onCreate() {
         super.onCreate()
         ensureChannel()
         startForeground(NOTIFICATION_ID, buildNotification(), foregroundType())
+
+        playbackPauser = PlaybackPauser(this)
+        audioRouter = AudioRouter(this).also { it.start() }
+        scanner = BleScanner(
+            context = this,
+            onParsed = { result, parsed ->
+                val name = result.scanRecord?.deviceName
+                    ?: runCatching { result.device.name }.getOrNull()
+                    ?: parsed.modelName
+                PodLinkRepository.onAdvertParsed(
+                    deviceName = name,
+                    deviceAddress = result.device.address ?: "",
+                    battery = parsed.battery,
+                    earStatus = parsed.earStatus,
+                    nowMs = System.currentTimeMillis(),
+                )
+                playbackPauser.onEarStatus(parsed.earStatus)
+            },
+            onUnavailable = { reason ->
+                PodLinkRepository.setRoutingNote("Scanner: $reason")
+            },
+        )
+
+        if (scanner.start()) {
+            PodLinkRepository.setServiceStatus(ServiceStatus.Scanning)
+        } else {
+            PodLinkRepository.setServiceStatus(ServiceStatus.Stopped)
+        }
+    }
+
+    override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
+        super.onStartCommand(intent, flags, startId)
+        return START_STICKY
+    }
+
+    override fun onDestroy() {
+        scanner.stop()
+        audioRouter.stop()
+        playbackPauser.reset()
+        PodLinkRepository.setServiceStatus(ServiceStatus.Stopped)
+        super.onDestroy()
     }
 
     private fun ensureChannel() {
@@ -60,8 +114,20 @@ class PodLinkService : LifecycleService() {
             0
         }
 
+    @Suppress("unused")
+    private fun startedAtMs(): Long = SystemClock.uptimeMillis()
+
     companion object {
         private const val CHANNEL_ID = "podlink_status"
         private const val NOTIFICATION_ID = 1
+
+        fun start(context: Context) {
+            val intent = Intent(context, PodLinkService::class.java)
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                context.startForegroundService(intent)
+            } else {
+                context.startService(intent)
+            }
+        }
     }
 }
