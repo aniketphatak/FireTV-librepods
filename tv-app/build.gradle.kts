@@ -94,8 +94,9 @@ dependencies {
 
     debugImplementation(libs.androidx.compose.ui.tooling)
 
-    "rootedFullImplementation"(libs.libsu.core)
-    "rootedFullImplementation"(libs.libsu.service)
+    // libsu (root shell helper) will be added back in phase 5 when the
+    // rootedFull AAP/L2CAP path actually calls it. Declaring it now would
+    // require pulling in JitPack as a CI repo for no current benefit.
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
