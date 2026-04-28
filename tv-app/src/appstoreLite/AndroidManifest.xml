@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  appstoreLite-only manifest fragment.
+  Stays inside the permission set Amazon Appstore review will accept.
+  Deliberately does NOT request: BLUETOOTH_PRIVILEGED, MODIFY_PHONE_STATE,
+  LOCAL_MAC_ADDRESS, INTERACT_ACROSS_USERS, ANSWER_PHONE_CALLS,
+  READ_PHONE_STATE, SYSTEM_ALERT_WINDOW.
+-->
+<manifest xmlns:android="http://schemas.android.com/apk/res/android" />

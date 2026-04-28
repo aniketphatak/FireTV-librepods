@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  rootedFull-only manifest fragment.
+  These privileged permissions are requested for parity with upstream
+  LibrePods so that AAP/L2CAP and audio-policy paths can run when the
+  device is rooted. On stock Fire OS most of them are signature-protected
+  and only granted to apps installed under /system/priv-app or via
+  Magisk-style permission grants; the app degrades gracefully when they
+  are not granted.
+-->
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <uses-permission
+        android:name="android.permission.BLUETOOTH_PRIVILEGED"
+        tools:ignore="ProtectedPermissions" />
+    <uses-permission
+        android:name="android.permission.LOCAL_MAC_ADDRESS"
+        tools:ignore="ProtectedPermissions" />
+    <uses-permission
+        android:name="android.permission.INTERACT_ACROSS_USERS"
+        tools:ignore="ProtectedPermissions" />
+
+</manifest>

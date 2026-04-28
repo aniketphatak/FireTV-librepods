@@ -1,0 +1,4 @@
+[submodule "third_party/librepods"]
+	path = third_party/librepods
+	url = https://github.com/kavishdevar/librepods.git
+	branch = main

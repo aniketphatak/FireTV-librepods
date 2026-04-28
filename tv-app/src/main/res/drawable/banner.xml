@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Placeholder Fire TV / Leanback banner.
+  Final shipping artifact must be a 1280x720 PNG (Amazon Appstore + Leanback
+  requirement). This vector exists only so debug/CI builds compile until the
+  real banner asset is produced in phase 6.
+-->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="320dp"
+    android:height="180dp"
+    android:viewportWidth="320"
+    android:viewportHeight="180">
+    <path
+        android:fillColor="#101010"
+        android:pathData="M0,0h320v180h-320z" />
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M120,90 m-12,0 a12,12 0,1,1 24,0 a12,12 0,1,1 -24,0z" />
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M200,90 m-12,0 a12,12 0,1,1 24,0 a12,12 0,1,1 -24,0z" />
+</vector>

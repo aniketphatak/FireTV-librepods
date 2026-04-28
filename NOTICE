@@ -1,0 +1,38 @@
+FireTV-librepods
+================
+
+Copyright (C) 2026 The FireTV-librepods authors.
+
+This program is free software: you can redistribute it and/or modify it
+under the terms of the GNU General Public License as published by the
+Free Software Foundation, either version 3 of the License, or (at your
+option) any later version. See the LICENSE file for the full text.
+
+Upstream attribution
+--------------------
+
+This project is a Fire TV port that re-uses code from the LibrePods project:
+
+    LibrePods - https://github.com/kavishdevar/librepods
+    Copyright (C) Kavish Devar and contributors
+    Licensed under GNU GPL-3.0-or-later
+
+Files vendored or referenced from LibrePods retain their original GPL-3.0
+license headers. The upstream source pinned for this port is recorded in
+`.gitmodules` (third_party/librepods).
+
+Source availability
+-------------------
+
+The complete corresponding source for any binary distribution of this app
+(Amazon Appstore, GitHub Releases, sideload) is available at the public
+Git repository for this project. Per GPL-3.0 section 6, recipients of the
+binary are entitled to the source for the version they received.
+
+Trademarks
+----------
+
+"Apple", "AirPods", "Fire TV", "Fire OS", and "Amazon" are trademarks of
+their respective owners. This project is an independent work and is not
+affiliated with, endorsed by, or sponsored by Apple Inc. or Amazon.com, Inc.
+References to these names are descriptive only.
