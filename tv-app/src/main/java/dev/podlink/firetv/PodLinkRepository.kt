@@ -19,7 +19,7 @@ import kotlinx.coroutines.flow.update
  */
 object PodLinkRepository {
 
-    enum class ServiceStatus { Stopped, Scanning, Connected }
+    enum class ServiceStatus { Stopped, Starting, Scanning, Connected, Failed }
 
     data class State(
         val serviceStatus: ServiceStatus = ServiceStatus.Stopped,
@@ -30,6 +30,7 @@ object PodLinkRepository {
         val lastSeenAtMs: Long? = null,
         val routingNote: String? = null,
         val pauseEventCount: Int = 0,
+        val errorMessage: String? = null,
     )
 
     private val _state = MutableStateFlow(State())
@@ -37,6 +38,10 @@ object PodLinkRepository {
 
     fun setServiceStatus(status: ServiceStatus) =
         _state.update { it.copy(serviceStatus = status) }
+
+    fun setError(message: String) = _state.update {
+        it.copy(serviceStatus = ServiceStatus.Failed, errorMessage = message)
+    }
 
     fun onAdvertParsed(
         deviceName: String,

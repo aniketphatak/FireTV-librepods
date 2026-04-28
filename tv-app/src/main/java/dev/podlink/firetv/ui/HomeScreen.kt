@@ -40,7 +40,19 @@ fun HomeScreen(state: PodLinkRepository.State) {
             Text(
                 text = "Status: ${state.serviceStatus}",
                 style = MaterialTheme.typography.titleMedium,
+                color = if (state.serviceStatus == PodLinkRepository.ServiceStatus.Failed) {
+                    MaterialTheme.colorScheme.error
+                } else {
+                    MaterialTheme.colorScheme.onSurface
+                },
             )
+            state.errorMessage?.let {
+                Text(
+                    text = "Error: $it",
+                    style = MaterialTheme.typography.bodyLarge,
+                    color = MaterialTheme.colorScheme.error,
+                )
+            }
             Text(
                 text = state.deviceName ?: "Searching for AirPods…",
                 style = MaterialTheme.typography.headlineSmall,
