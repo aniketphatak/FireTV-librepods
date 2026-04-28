@@ -12,20 +12,18 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import androidx.tv.material3.ExperimentalTvMaterial3Api
-import androidx.tv.material3.MaterialTheme
-import androidx.tv.material3.Surface
-import androidx.tv.material3.Text
 import dev.podlink.firetv.PodLinkRepository
 import dev.podlink.firetv.core.Battery
 import dev.podlink.firetv.core.EarState
 import dev.podlink.firetv.core.EarStatus
 
-@OptIn(ExperimentalTvMaterial3Api::class)
 @Composable
 fun HomeScreen(state: PodLinkRepository.State) {
     Surface(modifier = Modifier.fillMaxSize()) {
@@ -63,7 +61,6 @@ fun HomeScreen(state: PodLinkRepository.State) {
     }
 }
 
-@OptIn(ExperimentalTvMaterial3Api::class)
 @Composable
 private fun BatteryRow(battery: Battery?) {
     Row(
@@ -77,7 +74,6 @@ private fun BatteryRow(battery: Battery?) {
     }
 }
 
-@OptIn(ExperimentalTvMaterial3Api::class)
 @Composable
 private fun BatteryBadge(label: String, percent: Int?, charging: Boolean) {
     val text = percent?.let { "$it%" } ?: "—"
@@ -95,7 +91,6 @@ private fun BatteryBadge(label: String, percent: Int?, charging: Boolean) {
     }
 }
 
-@OptIn(ExperimentalTvMaterial3Api::class)
 @Composable
 private fun EarRow(status: EarStatus) {
     Row(horizontalArrangement = Arrangement.spacedBy(24.dp)) {
