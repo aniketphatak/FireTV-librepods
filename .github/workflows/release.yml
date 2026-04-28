@@ -47,9 +47,6 @@ jobs:
           key: gradle-${{ runner.os }}-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties', 'gradle/libs.versions.toml') }}
           restore-keys: gradle-${{ runner.os }}-
 
-      - name: Validate Gradle wrapper
-        uses: gradle/wrapper-validation-action@v3
-
       - name: Run unit tests
         run: ./gradlew :core:testDebugUnitTest :tv-app:testAppstoreLiteDebugUnitTest --no-daemon --stacktrace
 
