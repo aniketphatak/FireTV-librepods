@@ -4,6 +4,11 @@ on:
   push:
     tags:
       - "v*"
+    # Pushing a `release/v0.2.0-alpha` branch produces a release tagged
+    # `v0.2.0-alpha`. Useful when the canonical workflow (push a tag) is
+    # blocked by tooling that only allows branch pushes.
+    branches:
+      - "release/v*"
   workflow_dispatch:
     inputs:
       tag:
@@ -57,11 +62,14 @@ jobs:
       - name: Resolve tag
         id: tag
         run: |
-          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
-            echo "name=${{ github.event.inputs.tag }}" >> "$GITHUB_OUTPUT"
-          else
-            echo "name=${GITHUB_REF#refs/tags/}" >> "$GITHUB_OUTPUT"
-          fi
+          case "${GITHUB_REF}" in
+            refs/tags/*)
+              echo "name=${GITHUB_REF#refs/tags/}" >> "$GITHUB_OUTPUT" ;;
+            refs/heads/release/*)
+              echo "name=${GITHUB_REF#refs/heads/release/}" >> "$GITHUB_OUTPUT" ;;
+            *)
+              echo "name=${{ github.event.inputs.tag }}" >> "$GITHUB_OUTPUT" ;;
+          esac
 
       - name: Stage APKs with friendly names
         run: |
